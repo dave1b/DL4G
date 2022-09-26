@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 jass-kit = "*"
 ipykernel = "*"
+flask = "*"
 
 [dev-packages]
 
