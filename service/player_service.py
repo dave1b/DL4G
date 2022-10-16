@@ -5,7 +5,7 @@ import logging
 
 from jass.service.player_service_app import PlayerServiceApp
 from jass.agents.agent_random_schieber import AgentRandomSchieber
-from intro_basic_agent.set_only_trump_else_random_agent import SetOnlyTrumpElseRandomAgent
+from intro_basic.set_only_trump_else_random_agent import SetOnlyTrumpElseRandomAgent
 
 def create_app():
     """
