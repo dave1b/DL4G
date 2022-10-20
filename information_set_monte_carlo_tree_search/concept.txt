@@ -1,0 +1,17 @@
+1. Player x has to play card
+2. he knows which card he has and which have not yet been played
+3. he can guess all possible distribution of cards to players
+4. he remembers previous tricks
+
+
+1. cards are loaded into a root node
+2. Constructed with parameters: played cards, player number, player cards, current trump, reference to root node
+3. Generated variable: child-array, trick points,
+4. child nodes are generated with possible distribution
+
+
+36 Karten
+27 Karten nicht bekannt
+
+
+
