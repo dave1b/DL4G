@@ -8,6 +8,10 @@ jass-kit = "*"
 ipykernel = "*"
 flask = "*"
 requests = "*"
+matplotlib = "*"
+pandas = "*"
+sklearn = "*"
+tensorflow = "*"
 
 [dev-packages]
 
