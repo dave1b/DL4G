@@ -5,11 +5,15 @@
 
 
 1. cards are loaded into a root node
-2. Constructed with parameters: played cards, player number, player cards, current trump, reference to root node
+2. Constructed with parameters: played cards, player cards, current trump, current player number, reference to root node
 3. Generated variable: child-array, trick points,
 4. child nodes are generated with possible distribution
 
+How simulate playing?
 
+
+
+First Play of game
 36 Karten
 27 Karten nicht bekannt
 
