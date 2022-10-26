@@ -88,6 +88,8 @@ class SetOnlyTrumpElseRandomAgent(Agent):
         self.round = 0
 
     def action_trump(self, obs: GameObservation) -> int:
+        im_loch = obs.dealer - 1 == obs.player_view
+        print("im loch: ", im_loch)
         # print(obs.forehand)
         _trump_scores = np.zeros(4, dtype=int)
 
@@ -97,8 +99,8 @@ class SetOnlyTrumpElseRandomAgent(Agent):
 
         _best_trump_result, = np.where(_trump_scores == _trump_scores.max())
         _best_trump = _best_trump_result[0]
-        print("bester trumpf 1: ", _best_trump )
-        print("bester trumpf 2: ", _best_trump , " trump score: ", _trump_scores.max())
+        print("bester trumpf 1: ", _best_trump)
+        print("bester trumpf 2: ", _best_trump, " trump score: ", _trump_scores.max())
         # print("largest points ", _trump_scores.max(), " with trump", _best_trump)
 
         if obs.forehand == -1:
@@ -148,15 +150,14 @@ class SetOnlyTrumpElseRandomAgent(Agent):
         return np.random.choice(np.flatnonzero(_valid_cards))
 
 
-
 def main():
     from jass.arena.arena import Arena
     from jass.agents.agent_random_schieber import AgentRandomSchieber
 
     # setup the arena
-    arena = Arena(nr_games_to_play=1000)
+    arena = Arena(nr_games_to_play=5)
     player = AgentRandomSchieber()
-    my_player = IntroBasicAgent()
+    my_player = SetOnlyTrumpElseRandomAgent()
 
     arena.set_players(my_player, player, my_player, player)
     print('Playing {} games'.format(arena.nr_games_to_play))
@@ -167,4 +168,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
