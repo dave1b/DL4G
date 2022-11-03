@@ -1,5 +1,6 @@
 import math
-from node import Node
+from dmcts_node import Node
+
 
 class UCB:
     def __init__(self, c=1):
@@ -16,11 +17,11 @@ class UCB:
         best_child = None
         best_score = -1
         for child in node.children:
-            score = self.ucb_value(parent_visits,child.win_count,child.visits_count)
+            score = self.ucb_value(parent_visits, child.win_count, child.visits_count)
             if score > best_score:
                 best_child = child
                 best_score = score
 
         if best_child is None:
-            print("No best children  found")
+            print("No best children found")
         return best_child
