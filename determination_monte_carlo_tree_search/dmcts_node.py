@@ -31,12 +31,15 @@ class DMCTSNode:
         self.untried_actions = np.flatnonzero(valid_cards)
         return self.untried_actions
 
-    def best_action(self, thread_running_queue: Queue):
-        while thread_running_queue.empty():
+    def best_action(self, thread_running_queue: list):
+        while len(thread_running_queue
+                  ) == 0:
             v = self.tree_policy()
             reward = v.rollout()
             v.backpropagate(reward)
-        return self.best_child().parent_action
+        x = self.best_child()
+        print(x.visits_count)
+        return x.parent_action
 
     def tree_policy(self):
         current_node = self

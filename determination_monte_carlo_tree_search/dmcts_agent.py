@@ -20,7 +20,7 @@ class DMCTSAgent(Agent):
         # we need a rule object to determine the valid cards
         self._rule = RuleSchieber()
         self.round = 0
-        self.thread_count = 64
+        self.thread_count = 20
         # self.thread_count = (min(32, (os.cpu_count() or 1) + 4))
         self.thread_pool_executor = ThreadPoolExecutor(self.thread_count)
         self._rng = np.random.default_rng()
@@ -58,7 +58,7 @@ class DMCTSAgent(Agent):
         self.round += 1
         print("round: ", self.round)
         self.round = self.round % 9
-        thread_running_queue = Queue()
+        thread_running_queue = []
         future_objects = []
         for x in range(0, self.thread_count):
             future = self.thread_pool_executor.submit((self.construct_root_node_threaded(game_observation)).best_action,
@@ -66,7 +66,7 @@ class DMCTSAgent(Agent):
             future_objects.append(future)
         print("threads running...")
         time.sleep(9.25)
-        thread_running_queue.put("stop")
+        thread_running_queue.append("stop")
 
         # print("future")
         # for x in future_objects:
