@@ -5,11 +5,12 @@ from jass.game import game_state_util
 from jass.game.game_sim import GameSim
 from jass.game.game_state import GameState
 from jass.game.rule_schieber import RuleSchieber
+from queue import Queue
 
 
 class DMCTSNode:
 
-    def __init__(self, game_state: GameState, player_number, parent=None, parent_action=None):
+    def __init__(self, game_state: GameState, player_number, parent=None, parent_action=None, best_child_queue=None):
         self.game_state = game_state
         self.player_number = player_number
         self.parent = parent
@@ -23,6 +24,7 @@ class DMCTSNode:
         self.game_sim = GameSim(RuleSchieber())
         self.untried_actions = None
         self.get_untried_actions()
+        self.best_child_queue = best_child_queue
 
     def get_untried_actions(self):
         valid_cards = self.rule.get_valid_actions_from_obs(
@@ -33,14 +35,13 @@ class DMCTSNode:
         self.untried_actions = np.flatnonzero(valid_cards)
         return self.untried_actions
 
-    def best_action(self):
-        simulation_no = 500
-        for i in range(simulation_no):
+    def best_action(self, thread_running_queue: Queue):
+        while thread_running_queue.empty():
             v = self.tree_policy()
             reward = v.rollout()
             v.backpropagate(reward)
-
-        return self.best_child()
+        x = self.best_child().parent_action
+        self.best_child_queue.put(x)
 
     def tree_policy(self):
         current_node = self
@@ -78,7 +79,8 @@ class DMCTSNode:
         # Initilize GameSim with state
         self.game_sim.init_from_state(self.game_state)
         self.game_sim.action_play_card(action)
-        child_node = DMCTSNode(self.game_state, self.player_number, parent=self, parent_action=action)
+        child_node = DMCTSNode(self.game_state, self.player_number, parent=self, parent_action=action,
+                               best_child_queue=self.best_child_queue)
         self.children.append(child_node)
         return child_node
 
