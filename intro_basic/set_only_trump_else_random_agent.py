@@ -109,7 +109,7 @@ class SetOnlyTrumpElseRandomAgent(Agent):
             else:
                 return PUSH
         if obs.forehand == 0:
-            return _best_trump
+            return int(_best_trump)
 
     def action_play_card(self, obs: GameObservation) -> int:
         print("Spielzug: ", self.round)
@@ -123,15 +123,15 @@ class SetOnlyTrumpElseRandomAgent(Agent):
         # wenn player selber angesagt hat und am Zug ist
         if obs.dealer - 1 == obs.player_view:
 
-            condition = (_encoded_valid_cards_ >= 9 * _trump) & (_encoded_valid_cards_ < 9 * (_trump + 1))
+            condition = (_encoded_valid_cards_ > 9 * _trump) & (_encoded_valid_cards_ < 9 * (_trump + 1))
 
-            _player_trump_cards = np.extract(condition, _encoded_valid_cards_)
+            _player_trump_cards = np.extract(_encoded_valid_cards_)
             print("karten in hand: ", np.array(_encoded_valid_cards_))
             print("trump: ", _trump)
-            print("trümpfe in hand: ", _player_trump_cards)
+            print("trumpfe in hand: ", _player_trump_cards)
 
             _player_trump_cards_normalized = np.array(_player_trump_cards).__add__(-_trump * 9)
-            print("trümpfe in hand normalisiert: ", _player_trump_cards_normalized)
+            print("trumpfe in hand normalisiert: ", _player_trump_cards_normalized)
 
             player_trump_cards_in_trump_score = np.zeros(9, dtype=int)
 
@@ -139,7 +139,7 @@ class SetOnlyTrumpElseRandomAgent(Agent):
                 for _card in _player_trump_cards_normalized:
                     print("trump_cards_nomalized: ", np.array(_card))
                     player_trump_cards_in_trump_score[_card] = np.array(trump_score[_card.astype(int)])
-                print("die übergemappten trump-punkte sind :", player_trump_cards_in_trump_score)
+                print("die ubergemappten trump-punkte sind :", player_trump_cards_in_trump_score)
                 print("die maximale karte ist: ", player_trump_cards_in_trump_score.max())
                 _card_to_play = player_trump_cards_in_trump_score.argmax() + _trump * 9
                 print("die zu spielende karte ist: ", _card_to_play)
@@ -147,7 +147,7 @@ class SetOnlyTrumpElseRandomAgent(Agent):
 
         # wenn Spieler nicht angesagt hat
         # we use the global random number generator here
-        return np.random.choice(np.flatnonzero(_valid_cards))
+        return int(np.random.choice(np.flatnonzero(_valid_cards)))
 
 
 def main():
