@@ -13,11 +13,14 @@ def main():
     # setup the arena
     arena = Arena(nr_games_to_play=50)
     player = AgentRandomSchieber()
-    my_player = AgentByNetwork('http://178.196.170.109:8888/MLPOnlyTrumpAgent')
-    my_player2 = AgentByNetwork('http://178.196.170.109:8888/AgentRandomSchieber')
+    my_player = AgentByNetwork('http://178.196.170.109:8080/MLPOnlyTrumpAgent')
+    my_player2 = AgentByNetwork('http://178.196.170.109:8080/AgentRandomSchieber')
+    mlp = AgentByNetwork('http://dl4g-h22-dbrunner.enterpriselab.ch:8080/DMCTS_MLP')
+    nico = AgentByNetwork('http://147.88.62.113:8080/dmtcs_player_nw')
+    onlyTrump = AgentByNetwork('http://dl4g-h22-dbrunner.enterpriselab.ch:8080/OnlyTrump')
     # my_player = AgentByNetwork('https://lg3bsb3a96.execute-api.eu-central-1.amazonaws.com/dev/random')
 
-    arena.set_players(my_player, my_player2, my_player, my_player2)
+    arena.set_players(mlp, nico, mlp, nico)
     print('Playing {} games'.format(arena.nr_games_to_play))
     arena.play_all_games()
     print('Average Points Team 0: {:.2f})'.format(arena.points_team_0.mean()))
