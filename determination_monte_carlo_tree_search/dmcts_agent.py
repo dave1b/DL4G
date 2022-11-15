@@ -14,6 +14,7 @@ class DMCTSAgent(Agent):
     def __init__(self):
         self._logger = logging.getLogger("DMTSAgent")
         super().__init__()
+        self.pkl_filename = 'mlp_model.pkl'
         # we need a rule object to determine the valid cards
         self._rule = RuleSchieber()
         self.round = 0
@@ -33,8 +34,7 @@ class DMCTSAgent(Agent):
         _valid_cards = np.append(_valid_cards, int(im_loch))
         data = _valid_cards.reshape(1, -1)
 
-        pkl_filename = 'C:/Users/Dave/Documents/GitHub/DL4G/ml/models/mlp_model.pkl'
-        with open(pkl_filename, 'rb') as file:
+        with open(self.pkl_filename, 'rb') as file:
             mlp_model = pickle.load(file)
 
         trump = mlp_model.predict(data)[0]
@@ -102,8 +102,8 @@ from jass.agents.agent_random_schieber import AgentRandomSchieber
 def main():
     # Jass Arena for trying Agents
     arena = Arena(nr_games_to_play=1, cheating_mode=False, print_every_x_games=1)
-    arena.set_players(DMCTSAgent(), AgentRandomSchieber(),
-                      DMCTSAgent(), AgentRandomSchieber())
+    arena.set_players(DMCTSAgent(), DMCTSAgent(),
+                      DMCTSAgent(), DMCTSAgent())
     arena.play_all_games()
     # arena.play_game(dealer=NORTH)
     print(arena.points_team_0.sum(), arena.points_team_1.sum())
