@@ -1,11 +1,10 @@
 from collections import defaultdict
-
 import numpy as np
+from threading import Timer
 from jass.game import game_state_util
 from jass.game.game_sim import GameSim
 from jass.game.game_state import GameState
 from jass.game.rule_schieber import RuleSchieber
-from queue import Queue
 
 
 class DMCTSNode:
@@ -24,6 +23,7 @@ class DMCTSNode:
         self.game_sim = GameSim(RuleSchieber())
         self.untried_actions = None
         self.get_untried_actions()
+        self.is_running = True
 
     def get_untried_actions(self):
         valid_cards = self.rule.get_valid_actions_from_obs(
@@ -31,15 +31,16 @@ class DMCTSNode:
         self.untried_actions = np.flatnonzero(valid_cards)
         return self.untried_actions
 
-    def best_action(self, thread_running_queue: list):
-        while len(thread_running_queue
-                  ) == 0:
+    def best_action(self, time_budget: int):
+        Timer(time_budget, self._stop_exploration).start()
+        while self.is_running:
             v = self.tree_policy()
             reward = v.rollout()
             v.backpropagate(reward)
-        x = self.best_child()
-        print(x.visits_count)
-        return x.parent_action
+        return self.best_child().parent_action
+
+    def _stop_exploration(self):
+        self.is_running = False
 
     def tree_policy(self):
         current_node = self
@@ -72,8 +73,6 @@ class DMCTSNode:
 
     def expand(self):
         action, self.untried_actions = self.untried_actions[-1], self.untried_actions[:-1]
-        # print("action: ", action)
-        # print("untried_actions: ", self.untried_actions)
         # Initilize GameSim with state
         self.game_sim.init_from_state(self.game_state)
         self.game_sim.action_play_card(action)
