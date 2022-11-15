@@ -3,7 +3,7 @@ from jass.game.game_state_util import *
 from jass.game.const import *
 from jass.game.rule_schieber import RuleSchieber
 from jass.agents.agent import Agent
-from dmcts_node import DMCTSNode
+from determination_monte_carlo_tree_search.dmcts_node import DMCTSNode
 from concurrent.futures import ProcessPoolExecutor
 import logging
 from collections import Counter
