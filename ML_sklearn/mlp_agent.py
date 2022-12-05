@@ -30,7 +30,7 @@ class MLPOnlyTrumpAgent(Agent):
         _valid_cards = np.append(_valid_cards, int(im_loch))
         data = _valid_cards.reshape(1, -1)
 
-        pkl_filename = 'C:/Users/Dave/Documents/GitHub/DL4G/ml/models/mlp_model.pkl'
+        pkl_filename = '/ML_sklearn/models/mlp_model.pkl'
         with open(pkl_filename, 'rb') as file:
             mlp_model = pickle.load(file)
 
