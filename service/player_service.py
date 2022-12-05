@@ -5,8 +5,8 @@ sys.path.insert(0, "C:/Users/Dave/Documents/GitHub/DL4G")
 import logging
 from jass.service.player_service_app import PlayerServiceApp
 from jass.agents.agent_random_schieber import AgentRandomSchieber
-from intro_basic.set_only_trump_else_random_agent import SetOnlyTrumpElseRandomAgent
-from ml.mlp_agent import MLPOnlyTrumpAgent
+from intro_and_rule_based.set_only_trump_else_random_agent import SetOnlyTrumpElseRandomAgent
+from ML_sklearn.mlp_agent import MLPOnlyTrumpAgent
 from determination_monte_carlo_tree_search.dmcts_agent import DMCTSAgent
 
 
