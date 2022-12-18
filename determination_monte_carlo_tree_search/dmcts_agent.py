@@ -39,13 +39,20 @@ class DMCTSAgent(Agent):
     def action_trump(self, game_observation: GameObservation) -> int:
         logging.info('Trump request mlp')
         # calculate if forehand
-        forehand = int(game_observation.player_view == (game_observation.dealer + 3) % 4)
+        forehand = game_observation.player_view == (game_observation.dealer + 3) % 4
         hand = self._rule.get_valid_cards_from_obs(game_observation)
-        data = self.__convert_hand_to_predict_form(hand, forehand)
+        data = self.__convert_hand_to_predict_form(hand, int(forehand))
         # load model
         mlp_model = keras.models.load_model(self.model_name)
         prediction = mlp_model.predict(data)[0]
-        trump = prediction.argmax(axis=0) - 1
+        logging.info("Prediction: %s", prediction)
+        trump = prediction.argmax(axis=0)
+        if (trump == 6):
+            if (forehand):
+                return 10
+            if (not forehand):
+                prediction[6] = 0
+                trump = prediction.argmax(axis=0)
         logging.info("Chosen trump: %s", trump)
         return int(trump)
 
