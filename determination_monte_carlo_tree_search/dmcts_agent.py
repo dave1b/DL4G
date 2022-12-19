@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 from jass.game.game_util import *
 from jass.game.game_state_util import *
 from jass.game.const import *
@@ -9,6 +10,7 @@ from determination_monte_carlo_tree_search.dmcts_node import DMCTSNode
 from concurrent.futures import ProcessPoolExecutor
 from collections import Counter
 from tensorflow import keras
+from threading import Timer
 import logging
 
 
@@ -20,10 +22,11 @@ class DMCTSAgent(Agent):
         # self.model_name = "./determination_monte_carlo_tree_search/mlp_model_v2"
         self._rule = RuleSchieber()
         self.round = 0
-        self.thread_count = 22
-        # self.thread_count = (min(32, (os.cpu_count() or 1) + 4))
-        self.time_budget_for_algorythm = 3
-        self.__dmcts_iteration_count = 3
+        # self.thread_count = 22
+        self.thread_count = (min(32, (os.cpu_count() or 1) + 4))
+        self.dmcts_handler_running = False
+        self.time_budget_for_algorythm = 9
+        self.dmcts_node_iterations = 100
         self.feature_columns = [
             # Diamonds
             'DA', 'DK', 'DQ', 'DJ', 'D10', 'D9', 'D8', 'D7', 'D6',
@@ -61,26 +64,41 @@ class DMCTSAgent(Agent):
         logging.info("Round: %s ", self.round)
         self.round = self.round % 9
 
-        best_actions_list = []
         # run dmcts
-        for i in range(0, self.__dmcts_iteration_count):
-            future_objects = []
-            process_pool_executor = ProcessPoolExecutor(max_workers=self.thread_count)
-            for x in range(0, self.thread_count):
-                node = self.__construct_root_node(game_observation)
-                future = process_pool_executor.submit(node.best_action, self.time_budget_for_algorythm)
-                future_objects.append(future)
-            logging.info("%s threads running...", self.thread_count)
-            best_actions_list += (list(map(lambda future_object: future_object.result(), future_objects)))
+        best_actions_list = []
+        future_objects = []
+        process_pool_executor = ProcessPoolExecutor(max_workers=self.thread_count)
+        for x in range(0, self.thread_count):
+            future = process_pool_executor.submit(self.dmcts_handler, game_observation,
+                                                  self.time_budget_for_algorythm)
+            future_objects.append(future)
+        logging.info("%s threads running...", self.thread_count)
+        result = (list(map(lambda future_object: future_object.result(), future_objects)))
+        for arr in result:
+            best_actions_list += arr
 
         # count best action
         counts = Counter(best_actions_list)
         best_action_overall = (max(counts.most_common(), key=lambda key_value: key_value[1]))[0]
+        logging.info("Total dmcts results: %s", len(best_actions_list))
         logging.info("Best actions: %s", best_actions_list)
         logging.info("Best overall action: %s", best_action_overall)
         logging.info("Best card to play: %s", card_strings[best_action_overall])
         logging.info("-------------------------------------------------")
         return best_action_overall
+
+    def dmcts_handler(self, game_observation, time_budget):
+        self.dmcts_handler_running = True
+        Timer(time_budget, self.__stop_handler).start()
+        results = []
+        while (self.dmcts_handler_running):
+            node = self.__construct_root_node(game_observation)
+            result = node.best_action(self.dmcts_node_iterations)
+            results.append(result)
+        return results
+
+    def __stop_handler(self):
+        self.dmcts_handler_running = False
 
     def __convert_hand_to_predict_form(self, hand, forehand: int):
         np.transpose(hand)
@@ -97,6 +115,8 @@ class DMCTSAgent(Agent):
             # Six seven eight combination
             new_col = '{}_678'.format(color)
             data[new_col] = data['{}6'.format(color)] & data['{}7'.format(color)] & data['{}8'.format(color)]
+        logging.info("data")
+        logging.info(data)
         return data
 
     @staticmethod
@@ -137,8 +157,8 @@ from jass.agents.agent_random_schieber import AgentRandomSchieber
 def main():
     # Jass Arena for testing Agents
     arena = Arena(nr_games_to_play=1, cheating_mode=False, print_every_x_games=1)
-    arena.set_players(DMCTSAgent(), DMCTSAgent(),
-                      DMCTSAgent(), DMCTSAgent())
+    arena.set_players(DMCTSAgent(), AgentRandomSchieber(),
+                      DMCTSAgent(), AgentRandomSchieber())
     arena.play_all_games()
     print(arena.points_team_0.sum(), arena.points_team_1.sum())
 

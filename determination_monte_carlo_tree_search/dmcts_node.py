@@ -23,7 +23,6 @@ class DMCTSNode:
         self.game_sim = GameSim(RuleSchieber())
         self.untried_actions = None
         self.__get_untried_actions()
-        self.is_running = True
 
     def __get_untried_actions(self) -> ndarray:
         valid_cards = self.rule.get_valid_actions_from_obs(
@@ -31,16 +30,14 @@ class DMCTSNode:
         self.untried_actions = np.flatnonzero(valid_cards)
         return self.untried_actions
 
-    def best_action(self, time_budget: int) -> int:
-        Timer(time_budget, self.__stop_exploration).start()
-        while self.is_running:
+    def best_action(self, iteration_budget: int) -> int:
+        iteration_counter = 0
+        while (iteration_counter < iteration_budget):
             v = self.__tree_policy()
             reward = v.rollout()
             v.backpropagate(reward)
+            iteration_counter += 1
         return self.__best_child().parent_action
-
-    def __stop_exploration(self):
-        self.is_running = False
 
     def __tree_policy(self):
         current_node = self
